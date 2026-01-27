@@ -12,6 +12,7 @@ services:
 
     volumes:
       - open-webui:/app/backend/data
+      - ./overrides/custom.css:/app/backend/open_webui/static/custom.css:ro
 
 volumes:
   open-webui:
