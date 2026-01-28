@@ -9,7 +9,6 @@ services:
       - .env
     volumes:
       - open-webui:/app/backend/data
-      - ./overrides/custom.css:/app/backend/open_webui/static/custom.css:ro
 
   litellm_nostream:
     image: nginx:alpine
