@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx/litellm_nostream.conf:/etc/nginx/conf.d/default.conf:ro
-    # kein Port nach außen nötig – OpenWebUI greift intern drauf zu
+    # IP in config anpassen
     expose:
       - "4100"
 
