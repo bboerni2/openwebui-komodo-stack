@@ -11,7 +11,21 @@ services:
       - open-webui:/app/backend/data
     depends_on:
       - tika
-      
+
+  openwebui-worker:
+    image: ghcr.io/open-webui/open-webui:0.7.2
+    container_name: open-webui-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - WORKER_MODE=true
+      - ENABLE_FILE_UPLOAD=false
+    volumes:
+      - open-webui:/app/backend/data
+    depends_on:
+      - tika
+
   tika:
     image: apache/tika:2.9.1.0-full
     container_name: tika
