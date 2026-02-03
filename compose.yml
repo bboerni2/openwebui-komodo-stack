@@ -59,6 +59,12 @@ services:
     volumes:
       - open-webui:/app/backend/data
 
+  tika:
+    image: apache/tika:2.9.1.0-full
+    container_name: tika
+    restart: unless-stopped
+    expose:
+      - "9998"
 
   litellm_nostream:
     image: nginx:alpine
