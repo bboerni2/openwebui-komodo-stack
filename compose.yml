@@ -7,64 +7,22 @@ services:
       - "3000:8080"
     env_file:
       - .env
-    environment:
-      # UI Upload aber keine aggressive Verarbeitung
-      - ENABLE_FILE_UPLOAD=true
-      - AUTO_INDEX_ON_UPLOAD=false
-      - ENABLE_PDF_OCR=false
     volumes:
       - open-webui:/app/backend/data
-
-  openwebui-worker-default:
-    image: ghcr.io/open-webui/open-webui:0.7.2
-    container_name: open-webui-worker-default
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      # Kein UI, nur Hintergrundarbeit
-      - WORKER_MODE=true
-      - ENABLE_FILE_UPLOAD=false
-      - AUTO_INDEX_ON_UPLOAD=false
-
-      # Performance-Tuning
-      - ENABLE_PDF_OCR=false
-
-      # periodischer Auto-Scan / Auto-Index
-      - ENABLE_BACKGROUND_INDEXER=true
-      - BACKGROUND_INDEX_INTERVAL_SECONDS=60
-
-    volumes:
-      - open-webui:/app/backend/data
-
-  openwebui-worker-ocr:
-    image: ghcr.io/open-webui/open-webui:0.7.2
-    container_name: open-webui-worker-ocr
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      # Kein UI, nur Hintergrundarbeit
-      - WORKER_MODE=true
-      - ENABLE_FILE_UPLOAD=false
-      - AUTO_INDEX_ON_UPLOAD=false
-
-      # Performance-Tuning
-      - ENABLE_PDF_OCR=true
-
-      # periodischer Auto-Scan / Auto-Index
-      - ENABLE_BACKGROUND_INDEXER=true
-      - BACKGROUND_INDEX_INTERVAL_SECONDS=120
-
-    volumes:
-      - open-webui:/app/backend/data
-
+    depends_on:
+      - tika
+      
   tika:
     image: apache/tika:2.9.1.0-full
     container_name: tika
     restart: unless-stopped
     expose:
       - "9998"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9998/tika"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   litellm_nostream:
     image: nginx:alpine
