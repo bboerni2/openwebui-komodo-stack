@@ -13,7 +13,7 @@ services:
     depends_on:
       open-terminal:
         condition: service_healthy
-      tika:
+      open-tika:
         condition: service_healthy
       litellm_nostream:
         condition: service_healthy
@@ -37,7 +37,7 @@ services:
 
   tika:
     image: apache/tika:2.9.1.0-full
-    container_name: tika
+    container_name: open-tika
     restart: unless-stopped
     expose:
       - "9998"
