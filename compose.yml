@@ -19,7 +19,7 @@ services:
         condition: service_started
 
   open-terminal:
-    image: ghcr.io/open-webui/open-terminal:v0.8.2
+    image: ghcr.io/open-webui/open-terminal
     container_name: open-terminal
     restart: unless-stopped
     command: ["/app/entrypoint.sh", "run"]
