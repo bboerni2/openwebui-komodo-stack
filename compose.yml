@@ -35,7 +35,7 @@ services:
       retries: 10
       start_period: 20s
 
-  tika:
+  open-tika:
     image: apache/tika:2.9.1.0-full
     container_name: open-tika
     restart: unless-stopped
