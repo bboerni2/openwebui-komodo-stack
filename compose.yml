@@ -22,7 +22,6 @@ services:
     image: ghcr.io/open-webui/open-terminal
     container_name: open-terminal
     restart: unless-stopped
-    command: ["/app/entrypoint.sh", "run"]
     env_file:
       - .env
     ports:
