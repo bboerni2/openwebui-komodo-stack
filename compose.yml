@@ -12,11 +12,11 @@ services:
       - workspace:/home/user
     depends_on:
       open-terminal:
-        condition: service_started
+        condition: service_healthy
       tika:
-        condition: service_started
+        condition: service_healthy
       litellm_nostream:
-        condition: service_started
+        condition: service_healthy
 
   open-terminal:
     image: ghcr.io/open-webui/open-terminal
