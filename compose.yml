@@ -12,9 +12,9 @@ services:
       - workspace:/home/user
     depends_on:
       open-terminal:
-        condition: service_healthy
+        condition: service_started
       tika:
-        condition: service_healthy
+        condition: service_started
       litellm_nostream:
         condition: service_started
 
