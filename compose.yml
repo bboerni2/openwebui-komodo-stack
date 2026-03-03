@@ -56,12 +56,6 @@ services:
       - ./nginx/litellm_nostream.conf:/etc/nginx/conf.d/default.conf:ro
     expose:
       - "4100"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4100/ >/dev/null 2>&1 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
 
 volumes:
   open-webui:
