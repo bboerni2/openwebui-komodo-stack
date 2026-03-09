@@ -9,11 +9,7 @@ services:
       - .env
     volumes:
       - open-webui:/app/backend/data
-      - workspace:/home/user
-    depends_on:
-      open-terminal:
-        condition: service_healthy
-
+      
   open-tika:
     image: apache/tika:2.9.1.0-full
     container_name: open-tika
