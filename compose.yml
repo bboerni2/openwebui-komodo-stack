@@ -7,25 +7,102 @@ services:
       - "3000:8080"
     env_file:
       - .env
+    environment:
+      # RAG / Vector DB
+      VECTOR_DB: mariadb-vector
+      MARIADB_VECTOR_DB_URL: ${MARIADB_VECTOR_DB_URL}
+      MARIADB_VECTOR_INITIALIZE_MAX_VECTOR_LENGTH: ${MARIADB_VECTOR_INITIALIZE_MAX_VECTOR_LENGTH:-1536}
+      MARIADB_VECTOR_DISTANCE_STRATEGY: ${MARIADB_VECTOR_DISTANCE_STRATEGY:-cosine}
+      MARIADB_VECTOR_INDEX_M: ${MARIADB_VECTOR_INDEX_M:-8}
+
+      # Document extraction via Tika
+      CONTENT_EXTRACTION_ENGINE: tika
+      TIKA_SERVER_URL: http://open-tika:9998
+
+      # optional, aber oft sinnvoll
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-1}
+
     volumes:
       - open-webui:/app/backend/data
-      
+
+    depends_on:
+      mariadb-vector:
+        condition: service_healthy
+      open-tika:
+        condition: service_started
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+    networks:
+      - openwebui-net
+
+  mariadb-vector:
+    image: mariadb:11.7
+    container_name: mariadb-vector
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb-buffer-pool-size=512M
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-openwebui}
+      MARIADB_USER: ${MARIADB_USER:-openwebui}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - mariadb-vector-data:/var/lib/mysql
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u$$MARIADB_USER -p$$MARIADB_PASSWORD --silent"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - openwebui-net
+
   open-tika:
     image: apache/tika:2.9.1.0-full
     container_name: open-tika
     restart: unless-stopped
     expose:
       - "9998"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9998/version >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - openwebui-net
 
   litellm_nostream:
     image: nginx:alpine
     container_name: litellm-nostream
     restart: unless-stopped
     volumes:
-      - ./nginx/litellm_nostream.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/litellm_nostream.conf:/etc/nginx/conf.d/default.conf:ro
     expose:
       - "4100"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4100 >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - openwebui-net
 
 volumes:
   open-webui:
-  workspace:
+  mariadb-vector-data:
+
+networks:
+  openwebui-net:
+    driver: bridge
