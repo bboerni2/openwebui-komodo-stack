@@ -26,7 +26,7 @@ services:
 
     depends_on:
       chromadb:
-        condition: service_healthy
+        condition: service_started
       open-tika:
         condition: service_started
 
