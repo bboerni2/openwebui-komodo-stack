@@ -41,25 +41,19 @@ services:
       - openwebui-net
 
   chromadb:
-    image: chromadb/chroma:0.5.15
+    image: chromadb/chroma:1.5.3
     container_name: chromadb
     restart: unless-stopped
     environment:
       IS_PERSISTENT: "TRUE"
       ALLOW_RESET: "TRUE"
-      PERSIST_DIRECTORY: /chroma/chroma
+      PERSIST_DIRECTORY: /data
     volumes:
-      - chromadb-data:/chroma/chroma
+      - chromadb-data:/data
     expose:
       - "8000"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/v2/heartbeat', timeout=3).status == 200 else 1)"
-        ]
+      test: ["CMD-SHELL", "python -c \"import socket,sys; s=socket.socket(); s.settimeout(3); s.connect(('127.0.0.1',8000)); s.close(); sys.exit(0)\""]
       interval: 15s
       timeout: 10s
       retries: 10
